@@ -22,9 +22,10 @@ else:
     SquadManager = SquadDic()
 
 # Miscellaneous functions-----------------------------------------------
-def send_create_group(bot,cid,message,user,query=False):
+def send_create_group(bot,cid,message,user,query=False,group=False):
     s_list = "\n"
-    group = SquadManager.get_group(user)
+    if not group:
+        group = SquadManager.get_group(user)
     users = SquadManager.get_group_users(group)
     data = " %s %s" % (group,user)
     sym1 = texter("symbol01",SETTINGS["LENGUAGE"])
@@ -147,6 +148,8 @@ def callback_handler(bot, update):
         message = "\n".join(query.message.text.split("\n")[0:2])
         expired = False
         
+        print(data)
+        
         if data[0] == "JG": # Joint group
             info = SquadManager.join(user,uid,data[1],True)
         elif data[0] == "LG": # Leave group
@@ -160,7 +163,7 @@ def callback_handler(bot, update):
                 text=texter("warning01",SETTINGS["LENGUAGE"]),
                 parse_mode=telegram.ParseMode.HTML)
         else:
-            send_create_group(bot,cid,message,data[2],query)
+            send_create_group(bot,cid,message,data[2],query,data[1])
             
     except Exception as e:
         print(e)

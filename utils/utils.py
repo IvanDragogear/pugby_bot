@@ -36,6 +36,28 @@ def get_time():
 def args_time(args):
     try:
         f_args = len(args)
+        if f_args == 2:
+            h,m = args[1].split(":")
+        else:
+            h,m = args[0].split(":")
+        h = int(h)
+        m = int(m)
+        if args[0] == "mx":
+            es_h = h+7
+            mx_h = h
+        elif args[0] == "es":
+            es_h = h
+            mx_h = h+17
+        else:
+            es_h = h
+            mx_h = h+17
+        return _format_str_time(es_h,m),_format_str_time(mx_h,m)
+    except Exception as e:
+        return False
+        
+def args_time_2(args):
+    try:
+        f_args = len(args)
         if args[0] == "es" or args[0] == "mx":
             if f_args >= 2:
                 h = int(args[1])
