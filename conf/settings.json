@@ -1,0 +1,9 @@
+{
+    "BOT_TOKEN":"609591558:AAF2iagDZ1AnPKhlu3f6yvPiy_7CyLgYHPE",
+    "TEST_BOT_TOKEN": "",
+    "USE_DATABASE": 0,
+    "DATABASE_ENGINE": "",
+    "PATH_DATABASE":"",
+    "LENGUAGE": "es",
+    "SUPERUSERS":[]
+}

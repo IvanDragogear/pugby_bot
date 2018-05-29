@@ -1,0 +1,4 @@
+
+class SquadSql():
+    pass
+

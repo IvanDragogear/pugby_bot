@@ -1,0 +1,67 @@
+{
+    "help": [
+        "/help ➡️ Muestra la lista de comandos",
+        "/about ➡️ ¿No quieres saber más sobre mi?😏",
+        "/crearDuo Crear un dúo nuevo",
+        "/crearSquad ➡️ Crear un esquadrón nuevo",
+        "/refloat ➡️ Reflotar el mensaje del Squad creado previamente",
+        "/humor ➡️ Simplemente pruebalo😂"],
+    "about":[
+        "<b>Hola</b>,",
+        "Mi nombre es <b>Pubgy</b> y he sido creado especialmente para el grupo de PubgMobile @pubgmobilespanish😊 ",
+        "Mi objetivo prioritario es la organización de partidas tanto de 👨‍👩‍👧‍👦Squad👨‍👩‍👧‍👦 como de 👥Dúo👥 aunque también puedes divertirte conmigo😁",
+        "Para ver todo lo que puedo hacer usa el comando /help 😉",
+        "Mi creador @IvanDragogear recibió la ayuda de @MrTrolego para crear esta belleza😏",
+        "Que ganeis muchos pollos😄"],
+    "duo01":[
+        "<b>Duo</b> a las 🇪🇸<b>%s</b> 🇲🇽<b>%s</b>",
+        "Creado por %s"],
+    "duo02":[
+        "No se pudo crear el duo 😕",
+        "para: %s",
+        "Intenta nuevamente 👍"],
+    "duo03":[
+        "🤖Debes indicar la hora para /crearDuo, en los formatos:",
+        "/crearDuo <b>hh mm</b>",
+        "/crearDuo <b>tz hh mm</b>",
+        "",
+        "Donde <b>‘hh’</b> es la hora en formato de 24h, <b>‘mm’</b> son los minutos y <b>‘tz’</b> la zona horaria.",
+        "En zonas horarias solo se encuentran disponibles <b>‘es’</b> para España y <b>‘mx’</b> para México.",
+        "Si no se especifica <b>‘tz’</b> entonces la hora se considerara como horario de España.",
+        "",
+        "🤖Ejemplos:",
+        "/crearDuo <b>mx 9 30</b> – Crea duo para las 9:30 hora México",
+        "/crearDuo <b>es 2 0</b> – Crea duo para las 2:00 hora España",
+        "/crearDuo <b>mx 3</b> – Crea duo para las 3:00 hora Mexico",
+        "/crearDuo <b>23</b> – Crea duo para las 23:00 hora España."],
+    "squad01":[
+        "<b>Squad</b> a las 🇪🇸<b>%s</b> 🇲🇽<b>%s</b>",
+        "Creado por %s"],
+    "squad02":[
+        "No se pudo crear el squad 😕",
+        "para: %s",
+        "Intenta nuevamente 👍"],
+    "squad03":[
+        "🤖Debes indicar la hora para /crearSquad, en los formatos:",
+        "/crearSquad <b>hh mm</b>",
+        "/crearSquad <b>tz hh mm</b>",
+        "",
+        "Donde <b>‘hh’</b> es la hora en formato de 24h, <b>‘mm’</b> son los minutos y <b>‘tz’</b> la zona horaria.",
+        "En zonas horarias solo se encuentran disponibles <b>‘es’</b> para España y <b>‘mx’</b> para México.",
+        "Si no se especifica <b>‘tz’</b> entonces la hora se considerara como horario de España.",
+        "",
+        "🤖Ejemplos:",
+        "/crearSquad <b>mx 9 30</b> – Crea duo para las 9:30 hora México",
+        "/crearSquad <b>es 2 0</b> – Crea duo para las 2:00 hora España",
+        "/crearSquad <b>mx 3</b> – Crea duo para las 3:00 hora Mexico",
+        "/crearSquad <b>23</b> – Crea duo para las 23:00 hora España."],
+    "btn_group_01":"Me apunto🙋‍♂",
+    "btn_group_02":"No puedo🙅‍♂",
+    "btn_group_03":"Puede🤔",
+    "symbol01":"▫️",
+    "symbol02":"▪️",
+    "symbol03":"❓",
+    "symbol04":"👩‍👩‍👧‍👧 %s/%s",
+    "warning01":"Este grupo a expirado‼️"
+    
+}

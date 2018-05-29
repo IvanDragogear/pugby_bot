@@ -1,0 +1,3 @@
+
+class SquadPs():
+    pass
