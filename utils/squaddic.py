@@ -14,12 +14,33 @@ class SquadDic():
         self.messages_ids = []
         # synchronized lists
         self.groups_ids = []
-        self.message_group_ids = [] # [(chat_id,message_id)]
+        self.group_message_ids = {} # [(chat_id,message_id)]
         # "CodeNameDuoOrSquad":[["user1",uid1,False],["user2",uid,False]]
         self.duos = {}
         self.squads = {}
         # "user":[cid,d_ab12]]
         self.users = {}
+        
+    def clear_all(self):
+        self.chats_ids = []
+        self.messages_ids = []
+        self.groups_ids = []
+        self.group_message_ids = {} 
+        self.duos = {}
+        self.squads = {}
+        self.users = {}
+        
+    def add_group_message_id(self,cid,mid,group):
+        key = str(mid)+"_"+str(cid)
+        if self.group_message_ids.get(key) is None:
+            self.group_message_ids[key] = group
+            
+    def get_group_message_id(self,cid,mid):
+        key = str(mid)+"_"+str(cid)
+        if self.group_message_ids.get(key) is not None:
+                return self.group_message_ids[key]
+        else:
+            return False
     
     def expire_group(self):
         if self.duos.get(self.groups_ids[0]):
@@ -177,3 +198,4 @@ class SquadDic():
         return 2
             
             
+

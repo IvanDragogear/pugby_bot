@@ -62,9 +62,10 @@ def send_create_group(bot,cid,message,user,query=False,group=False):
             parse_mode=telegram.ParseMode.HTML,
             reply_markup=keyboard)
     else:
-        bot.sendMessage(chat_id=cid,text=message,
+        sent = bot.sendMessage(chat_id=cid,text=message,
             parse_mode=telegram.ParseMode.HTML,
             reply_markup=keyboard)
+        SquadManager.add_group_message_id(cid,sent.message_id,group)
     
 def expire_group(*args):
     SquadManager.expire_group()
@@ -94,7 +95,11 @@ def command_create_duo(bot,update,args=[],chat_data=True,job_queue=True):
         uid = update.message.from_user.id
         user = "@"+str(update.message.from_user.username)
         a = args_time(args)
-        if a:
+        if user == "@None":
+            bot.sendMessage(chat_id=cid,
+                text=texter("warning02",SETTINGS["LENGUAGE"]),
+                parse_mode=telegram.ParseMode.HTML)
+        elif a:
             info = SquadManager.create_duo(user,cid)
             if info == "try_again":
                 message = texter("duo02",SETTINGS["LENGUAGE"]) % (user)
@@ -120,7 +125,11 @@ def command_create_squad(bot,update,args=[],chat_data=True,job_queue=True):
         uid = update.message.from_user.id
         user = "@"+str(update.message.from_user.username)
         a = args_time(args)
-        if a:
+        if user == "@None":
+            bot.sendMessage(chat_id=cid,
+                text=texter("warning02",SETTINGS["LENGUAGE"]),
+                parse_mode=telegram.ParseMode.HTML)
+        elif a:
             info = SquadManager.create_squad(user,cid)
             if info == "try_again":
                 message = texter("squad02",SETTINGS["LENGUAGE"]) % (user)
@@ -141,11 +150,25 @@ def command_create_squad(bot,update,args=[],chat_data=True,job_queue=True):
         print(e)
     
 def command_refloat(bot, update, chat_data=True):
-    cid = update.message.chat_id
-    print(update.message.reply_to_message.message_id)
-    bot.sendMessage(chat_id=cid,
-        text="<b>refloat:</b> sigue en desarrollo",
-        parse_mode=telegram.ParseMode.HTML)
+    try:
+        cid = update.message.chat_id
+        mid = update.message.reply_to_message.message_id
+        text = update.message.reply_to_message.text
+        a = text.split("\n")[0].split(" ")
+        a = "<b>%s</b> %s %s <b>%s %s</b>" % tuple(a)
+        u = text.split("\n")[1]
+        message = a+"\n"+u
+        user = text.split("\n")[1].split(" ")[2]
+        group = SquadManager.get_group_message_id(cid,mid)
+        if group:
+            bot.delete_message(chat_id=cid,message_id=mid)
+            send_create_group(bot,cid,message,user,False,group)
+        else:
+            bot.sendMessage(chat_id=cid,
+                text=texter("warning01",SETTINGS["LENGUAGE"]),
+                parse_mode=telegram.ParseMode.HTML)
+    except Exception as e:
+        print(e)
 
 def command_humor(bot, update, pass_chat_data=True):
     cid = update.message.chat_id
@@ -168,20 +191,23 @@ def callback_handler(bot, update):
         a = "<b>%s</b> %s %s <b>%s %s</b>" % tuple(a)
         message = a+"\n"+query.message.text.split("\n")[1]
         expired = False
-        
-        if data[0] == "JG": # Joint group
+        if user == "@None":
+            bot.sendMessage(chat_id=cid,
+                text=texter("warning02",SETTINGS["LENGUAGE"]),
+                parse_mode=telegram.ParseMode.HTML)
+        elif data[0] == "JG": # Joint group
             info = SquadManager.join(user,uid,data[1],True)
         elif data[0] == "LG": # Leave group
             info = SquadManager.leave(user,data[1])
         elif data[0] == "UG": # Undecided group
             info = SquadManager.join(user,uid,data[1],False)
-        if not info:
+        if not info and user != "@None":
             bot.edit_message_text(
                 chat_id=query.message.chat_id,
                 message_id=query.message.message_id,
                 text=texter("warning01",SETTINGS["LENGUAGE"]),
                 parse_mode=telegram.ParseMode.HTML)
-        else:
+        elif user != "@None":
             send_create_group(bot,cid,message,data[2],query,data[1])
             
     except Exception as e:
@@ -193,8 +219,8 @@ def listener(bot, update):
     print("ID: %s \n Message: %s" % (cid, message))
 
 def main():
-    bot = telegram.Bot(token=SETTINGS["TEST_BOT_TOKEN"])
-    #bot = telegram.Bot(token=SETTINGS["BOT_TOKEN"])
+    #bot = telegram.Bot(token=SETTINGS["TEST_BOT_TOKEN"])
+    bot = telegram.Bot(token=SETTINGS["BOT_TOKEN"])
     botupdater = Updater(bot.token)
     
     # Add handlers
