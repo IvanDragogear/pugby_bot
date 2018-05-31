@@ -9,34 +9,64 @@ class SquadDic():
             "q","r","s","t","u","v","w","x","y","z","0","1","2","3",
             "4","5","6","7","8","9"
             )
+        # synchronized lists
+        self.chats_ids = []
+        self.messages_ids = []
+        # synchronized lists
+        self.groups_ids = []
+        self.message_group_ids = [] # [(chat_id,message_id)]
         # "CodeNameDuoOrSquad":[["user1",uid1,False],["user2",uid,False]]
         self.duos = {}
         self.squads = {}
         # "user":[cid,d_ab12]]
         self.users = {}
     
+    def expire_group(self):
+        if self.duos.get(self.groups_ids[0]):
+            del self.duos[self.groups_ids[0]]
+            del self.groups_ids[0]
+        elif self.squads.get(self.groups_ids[0]):
+            del self.squads[self.groups_ids[0]]
+            del self.groups_ids[0]
+            
+    def add_message_id(self, message_id, chat_id):
+        self.messages_ids.append(message_id)
+        self.chats_ids.append(chat_id)
+        
+    def expire_message(self):
+        if self.messages_ids:
+            message_id = self.messages_ids[0]
+            chat_id = self.chats_ids[0]
+            del self.messages_ids[0]
+            del self.chats_ids[0]
+            return message_id,chat_id
+        else:
+            return False
+     
     def create_duo(self,user,cid):
         code_name = self._generate_code_name("d_")
         if code_name is None:
             return "try_again"
+        self.groups_ids.append(code_name)
         self.duos[code_name] = [[None,None,False],[None,None,False]]
         if self.users.get(user) is None:
             self.users[user] = [cid,code_name]
         else:
             self.users[user][1] = code_name
-        return "create_group"
+        return code_name
         
     def create_squad(self,user,cid):
         code_name = self._generate_code_name("s_")
         if code_name is None:
             return "try_again"
+        self.groups_ids.append(code_name)
         self.squads[code_name] = [[None,None,False],[None,None,False],
             [None,None,False],[None,None,False]]
         if self.users.get(user) is None:
             self.users[user] = [cid,code_name]
         else:
             self.users[user][1] = code_name
-        return "create_group"
+        return code_name
         
     def join(self,user,uid,group,to_join=False):
         c = self._check_user(user,group)
@@ -82,8 +112,21 @@ class SquadDic():
         else:# User without group
             return 2
         
-    def dissolve_group(self,user):
-        pass
+    def dissolve_group(self,group):
+        g = None
+        if self.duos.get(group) is not None:
+            g = self.duos[group]
+            del self.duos[group]
+        elif self.squads.get(group) is not None:
+            g = self.duos[group]
+            del self.duos[group]
+        if g is not None:
+            for user in g:
+                if self.users.get(user) is not None:
+                    if self.users[user][1] == g:
+                        del self.users[user]
+                        return True
+        return False
                 
     def get_group_users(self,group):
         if self.duos.get(group) is not None:
