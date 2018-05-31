@@ -165,7 +165,8 @@ def callback_handler(bot, update):
         user = "@"+str(query.from_user.username)
         data = query.data.split(" ")
         a = query.message.text.split("\n")[0].split(" ")
-        message = "\n".join(query.message.text.split("\n")[0:2])
+        a = "<b>%s</b> %s %s <b>%s %s</b>" % tuple(a)
+        message = a+"\n"+query.message.text.split("\n")[1]
         expired = False
         
         if data[0] == "JG": # Joint group
