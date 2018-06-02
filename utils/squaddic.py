@@ -1,4 +1,5 @@
 from random import choice
+import sys, os
  
 class SquadDic():
     def __init__(self):
@@ -13,6 +14,7 @@ class SquadDic():
         self.chats_ids = []
         self.messages_ids = []
         # synchronized lists
+        self.jobs = {}
         self.groups_ids = []
         self.group_message_ids = {} # [(chat_id,message_id)]
         # "CodeNameDuoOrSquad":[["user1",uid1,False],["user2",uid,False]]
@@ -41,6 +43,45 @@ class SquadDic():
                 return self.group_message_ids[key]
         else:
             return False
+            
+    def to_register_job(self,cid,mid,job,group):
+        self.jobs[str(cid)+"_"+str(mid)] = (job,group)
+        
+    def delete_group_job(self,cid,mid):
+        try:
+            key = str(cid)+"_"+str(mid)
+            g = None
+            if self.jobs.get(key) is not None:
+                job,group = self.jobs[key]
+                index = self.groups_ids.index(group)
+                job.schedule_removal()
+                del self.jobs[key]
+                del self.groups_ids[index]
+                if self.group_message_ids.get(key):
+                    del self.group_message_ids[key]
+                if self.duos.get(group):
+                    g = self.duos[group]
+                    del self.duos[group]
+                elif self.squads.get(group):
+                    g = self.squads[group]
+                    del self.squads[group]
+            if g is not None:
+                for user in g:
+                    if self.users.get(user[0]) is not None:
+                        if self.users[user[0]][1] == g:
+                            del self.users[user[0]]
+        except Exception as e:
+            print(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+                        
+    def repalace_job_id(self, cid_new, mid_new, cid_old, mid_old):
+        key_new = str(cid_new)+"_"+str(mid_new)
+        key_old = str(cid_old)+"_"+str(mid_old)
+        if self.jobs.get(key_old) is not None:
+            self.jobs[key_new] = self.jobs[key_old]
+            del self.jobs[key_old]
     
     def expire_group(self):
         if self.duos.get(self.groups_ids[0]):
@@ -143,9 +184,9 @@ class SquadDic():
             del self.duos[group]
         if g is not None:
             for user in g:
-                if self.users.get(user) is not None:
-                    if self.users[user][1] == g:
-                        del self.users[user]
+                if self.users.get(user[0]) is not None:
+                    if self.users[user[0]][1] == g:
+                        del self.users[user[0]]
                         return True
         return False
                 

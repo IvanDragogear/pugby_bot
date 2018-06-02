@@ -22,6 +22,8 @@ else:
     from utils.squaddic import SquadDic
     SquadManager = SquadDic()
 
+jobs = {}
+
 # Miscellaneous functions-----------------------------------------------
 def send_create_group(bot,cid,message,user,query=False,group=False):
     s_list = "\n"
@@ -55,17 +57,19 @@ def send_create_group(bot,cid,message,user,query=False,group=False):
         SETTINGS["LENGUAGE"]),callback_data="UG"+data)]]
     keyboard = telegram.InlineKeyboardMarkup(a)
     if query: 
-        bot.edit_message_text(
+        sent = bot.edit_message_text(
             chat_id=query.message.chat_id,
             message_id=query.message.message_id,
             text=message,
             parse_mode=telegram.ParseMode.HTML,
             reply_markup=keyboard)
+        return sent
     else:
         sent = bot.sendMessage(chat_id=cid,text=message,
             parse_mode=telegram.ParseMode.HTML,
             reply_markup=keyboard)
         SquadManager.add_group_message_id(cid,sent.message_id,group)
+        return sent
     
 def expire_group(*args):
     SquadManager.expire_group()
@@ -108,8 +112,9 @@ def command_create_duo(bot,update,args=[],chat_data=True,job_queue=True):
             else:
                 a = (a[0],a[1],user)
                 message = texter("duo01",SETTINGS["LENGUAGE"]) % a
-                send_create_group(bot,cid,message,user)
-                job_queue.run_once(expire_group,172800,context=cid)
+                sent = send_create_group(bot,cid,message,user)
+                job = job_queue.run_once(expire_group,172800,context=cid)
+                SquadManager.to_register_job(cid,sent.message_id,job,info)
         else:
             message = texter("duo03",SETTINGS["LENGUAGE"])
             sent = bot.sendMessage(chat_id=cid,text=message,
@@ -118,6 +123,9 @@ def command_create_duo(bot,update,args=[],chat_data=True,job_queue=True):
             job_queue.run_once(expire_message,45,context=cid)
     except Exception as e:
         print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
 
 def command_create_squad(bot,update,args=[],chat_data=True,job_queue=True):
     try:
@@ -138,8 +146,9 @@ def command_create_squad(bot,update,args=[],chat_data=True,job_queue=True):
             else:
                 a = (a[0],a[1],user)
                 message = texter("squad01",SETTINGS["LENGUAGE"]) % a
-                send_create_group(bot,cid,message,user)
-                job_queue.run_once(expire_group,172800,context=cid)
+                sent = send_create_group(bot,cid,message,user)
+                job = job_queue.run_once(expire_group,172800,context=cid)
+                SquadManager.to_register_job(cid,sent.message_id,job,info)
         else:
             message = texter("squad03",SETTINGS["LENGUAGE"])
             sent = bot.sendMessage(chat_id=cid,text=message,
@@ -148,6 +157,9 @@ def command_create_squad(bot,update,args=[],chat_data=True,job_queue=True):
             job_queue.run_once(expire_message,45,context=cid)
     except Exception as e:
         print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
     
 def command_refloat(bot, update, chat_data=True):
     try:
@@ -162,13 +174,27 @@ def command_refloat(bot, update, chat_data=True):
         group = SquadManager.get_group_message_id(cid,mid)
         if group:
             bot.delete_message(chat_id=cid,message_id=mid)
-            send_create_group(bot,cid,message,user,False,group)
+            sent = send_create_group(bot,cid,message,user,False,group)
+            SquadManager.repalace_job_id(cid,sent.message_id,cid,mid)
         else:
             bot.sendMessage(chat_id=cid,
                 text=texter("warning01",SETTINGS["LENGUAGE"]),
                 parse_mode=telegram.ParseMode.HTML)
     except Exception as e:
         print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        
+def command_eliminate(bot, update, chat_data=True):
+    cid = update.message.chat_id
+    mid = update.message.reply_to_message.message_id
+    user = "@"+str(update.message.from_user.username)
+    if user in SETTINGS["SUPERUSERS"]:
+        SquadManager.delete_group_job(cid,mid)
+        bot.sendMessage(chat_id=cid,
+                text=texter("warning03",SETTINGS["LENGUAGE"]),
+                parse_mode=telegram.ParseMode.HTML)
 
 def command_humor(bot, update, pass_chat_data=True):
     cid = update.message.chat_id
@@ -211,7 +237,10 @@ def callback_handler(bot, update):
             send_create_group(bot,cid,message,data[2],query,data[1])
             
     except Exception as e:
-        return True
+        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
     
 def listener(bot, update):
     cid = update.message.chat_id
@@ -236,6 +265,8 @@ def main():
     dp.add_handler(CommandHandler('crearSquad',command_create_squad,
         pass_args=True,pass_chat_data=True,pass_job_queue=True))
     dp.add_handler(CommandHandler('refloat',command_refloat,
+        pass_chat_data=True))
+    dp.add_handler(CommandHandler('eliminar',command_eliminate,
         pass_chat_data=True))
     dp.add_handler(CommandHandler('humor',command_humor))
 
